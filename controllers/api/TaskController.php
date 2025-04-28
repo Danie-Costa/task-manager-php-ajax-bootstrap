@@ -11,7 +11,9 @@ class TaskController extends Controller
 
     public function listTasks()
     {
-        $tasks = $this->task->all();
+        global $requestParams;
+        $step = $requestParams['step'] ?? null;
+        $tasks = $this->task->all($step);
         $this->jsonResponse($tasks);
     }
 

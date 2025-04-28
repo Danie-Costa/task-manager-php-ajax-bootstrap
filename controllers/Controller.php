@@ -6,7 +6,7 @@ class Controller {
     public $content;
     public $dataPush;
     public function __construct() {
-        $this->dataPush = [];
+        $this->dataPush = ['css' => [], 'script' => []];
         $this->extend = null;
         $this->extended = null;
     }

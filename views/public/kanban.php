@@ -7,7 +7,8 @@
             </button>
         </div>
         <div class="kanbanCards">
-            
+        </div>
+        <div class="kanbanModals">
         </div>
     </div>
 
@@ -20,7 +21,8 @@
         </div>
 
         <div class="kanbanCards">
-            
+        </div>
+        <div class="kanbanModals">
         </div>
     </div>
 
@@ -34,13 +36,16 @@
 
         <div class="kanbanCards">
             <div class="kanbanCard card p-3" draggable="true">
-                
             </div>
+        </div>
+        <div class="kanbanModals">
         </div>
     </div>
 </main>
-<?php echo $this->renderView('public/kanbanCard'); ?>
+
+
+
 <?php 
-    $this->dataPush['css'] = $this->dataPush['css'] ?? ['./public/resources/css/kanban.css'];
-    $this->dataPush['script'] = $this->dataPush['script'] ?? ['./public/resources/js/kanban.js'];
+    array_push($this->dataPush['css'], './public/resources/css/kanban.css');
+    array_push($this->dataPush['script'], './public/resources/js/kanban.js');
 ?>

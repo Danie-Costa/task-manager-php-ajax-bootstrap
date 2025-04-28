@@ -12,8 +12,11 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #2e2e2e;
-    color: #fff;
+    background: #2e2e2e !important;
+    
+}
+body h1 {
+    color: #fff !important;
 }
 
 .kanban {

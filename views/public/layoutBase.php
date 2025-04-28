@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task Manager</title>
     <?php 
-    $this->dataPush['css'] = $this->dataPush['css'] ?? ['https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css'];
-    $this->dataPush['script'] = $this->dataPush['script'] ?? ['https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js'];
+    array_push($this->dataPush['css'], 'https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css');
+   array_push($this->dataPush['script'], 'https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js');
+   array_push($this->dataPush['script'], 'https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js');
     if (!empty($this->dataPush['css'])) {
         foreach ($this->dataPush['css'] as $css) {
             echo '<link rel="stylesheet" href="' . $css . '">' . "\n";

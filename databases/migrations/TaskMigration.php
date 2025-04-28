@@ -7,12 +7,13 @@ class TaskMigration implements MigrationInterface{
             id INT AUTO_INCREMENT PRIMARY KEY,
             title VARCHAR(255) NOT NULL,
             description TEXT,
-            completed BOOLEAN DEFAULT FALSE
+            status INT NOT NULL,
+            step INT NOT NULL
         )");
 
-        $db->query("INSERT INTO tasks (title, description, completed) VALUES ('Tarefa 1', 'Descrição da tarefa 1', FALSE)");
-        $db->query("INSERT INTO tasks (title, description, completed) VALUES ('Tarefa 2', 'Descrição da tarefa 2', FALSE)");
-        $db->query("INSERT INTO tasks (title, description, completed) VALUES ('Tarefa 3', 'Descrição da tarefa 3', FALSE)");
+        $db->query("INSERT INTO tasks (title, description, status, step) VALUES ('Tarefa 1', 'Descrição da tarefa 1', 1 , 1)");
+        $db->query("INSERT INTO tasks (title, description, status, step) VALUES ('Tarefa 2', 'Descrição da tarefa 2', 2, 2)");
+        $db->query("INSERT INTO tasks (title, description, status, step) VALUES ('Tarefa 3', 'Descrição da tarefa 3', 3, 3)");
     }
 
     public function down() {
