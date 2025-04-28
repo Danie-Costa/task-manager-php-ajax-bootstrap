@@ -181,6 +181,29 @@ document.addEventListener('DOMContentLoaded', () => {
             e.target.classList.remove('dragging');
         }
     });
+    window.deleteTask = function(taskId) {
+        if (!confirm('Tem certeza que deseja excluir esta tarefa?')) {
+            return; // Se o usuário cancelar, não faz nada
+        }
+    
+        fetch('http://localhost:8081/api/tasks/deleteTask', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ task_id: taskId })
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Erro ao excluir tarefa.');
+            return response.json();
+        })
+        .then(() => {
+            $(`#cardTask-${taskId}`).modal('hide');
+            kanbanColumns.forEach(column => loadTasksForColumn(column));
+        })
+        .catch(error => {
+            console.error('Erro ao excluir tarefa:', error);
+            alert('Erro ao excluir a tarefa. Tente novamente.');
+        });
+    };
 
     // ABRIR MODAL DE ADIÇÃO DE NOVA TAREFA
     addCardButtons.forEach(button => {
