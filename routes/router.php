@@ -13,7 +13,10 @@ class Router {
         $baseUri = strpos($uri, '/api') === 0 ? substr($uri, 4) : $uri;
         if (isset($routes[$baseUri]) && isset($routes[$baseUri][$method])) {
             $handler = $routes[$baseUri][$method];
-            call_user_func($handler);
+            $controller = $handler[0];
+            $action = $handler[1];
+            $controllerInstance = new $controller();
+            $controllerInstance->$action();
             return;
         }
         http_response_code(404);

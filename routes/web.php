@@ -4,10 +4,10 @@ class WebRouter implements RouterInterface {
     public function getRoutes(): array {
         return [
             '/' => [
-                'GET' => 'home',
+                'GET' => ['WebController', 'home'],
             ],
             '/sobre' => [
-                'GET' => 'sobre',
+                'GET' => ['WebController', 'sobre'],
             ],
         ];
     }

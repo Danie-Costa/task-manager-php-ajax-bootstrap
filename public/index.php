@@ -10,15 +10,3 @@ $apiRouter = new ApiRouter();
 $router = new Router($webRouter, $apiRouter);
 $router->handleRequest();
 
-
-function home() {
-    echo "Bem-vindo à página inicial!";
-}
-
-function sobre() {
-    echo "Sobre nossa empresa.";
-}
-
-function apiHome() {
-    echo "API Home";
-}
