@@ -48,17 +48,18 @@ class Task
 
     public function update(int $id, array $data): bool
     {
-        $stmt = $this->db->prepare(
-            "UPDATE tasks SET title = :title, description = :description, status = :status, step = :step WHERE id = :id"
-        );
-
-        return $stmt->execute([
-            'title' => $data['title'],
-            'description' => $data['description'],
-            'status' => $data['status'],
-            'step' => $data['step'],
-            'id' => $id,
-        ]);
+        if (empty($data)) {
+            return false; // nada para atualizar
+        }
+        $fields = [];
+        $params = ['id' => $id];
+        foreach ($data as $key => $value) {
+            $fields[] = "$key = :$key";
+            $params[$key] = $value;
+        }
+        $sql = "UPDATE tasks SET " . implode(', ', $fields) . " WHERE id = :id";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute($params);
     }
 
     public function delete(int $id): bool

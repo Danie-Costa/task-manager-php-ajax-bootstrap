@@ -26,15 +26,18 @@ class TaskController extends Controller
         }
     }
 
-    public function editTask($data)
+    public function editTask()
     {
-        if (!isset($data['id'])) {
+        global $requestParams;
+        $task_id = $requestParams['task_id'] ?? null;
+        unset($requestParams['task_id']);
+        if (!$task_id) {
             $this->jsonResponse(['message' => 'ID não informado'], 400);
             return;
         }
 
-        if ($this->task->update($data['id'], $data)) {
-            $this->jsonResponse(['message' => 'Tarefa atualizada com sucesso', 'task' => $data]);
+        if ($this->task->update($task_id, $requestParams)) {
+            $this->jsonResponse(['message' => 'Tarefa atualizada com sucesso', 'task' => $requestParams]);
         } else {
             $this->jsonResponse(['message' => 'Erro ao atualizar tarefa'], 500);
         }
