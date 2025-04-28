@@ -1,63 +1,52 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const API_URL = 'http://localhost:8081/api/tasks';
     const kanbanColumns = document.querySelectorAll('.kanbanColumn');
     const addCardButtons = document.querySelectorAll('.addCard');
 
-    function loadTasksForColumn(column) {
-        const stepId = column.getAttribute('data-id');
+    const fetchJSON = (url, options = {}) =>
+        fetch(url, options)
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                return res.json();
+            });
 
-        fetch(`http://localhost:8081/api/tasks?step=${stepId}`)
-            .then(response => {
-                if (!response.ok) throw new Error('Erro de rede.');
-                return response.json();
-            })
-            .then(tasks => {
-                const kanbanCards = column.querySelector('.kanbanCards');
-                const kanbanModals = column.querySelector('.kanbanModals');
+    const createElement = (tag, attrs = {}, html = '') => {
+        const el = document.createElement(tag);
+        Object.entries(attrs).forEach(([key, value]) => el.setAttribute(key, value));
+        el.innerHTML = html;
+        return el;
+    };
 
-                if (kanbanCards) kanbanCards.innerHTML = '';
-                if (kanbanModals) kanbanModals.innerHTML = '';
+    const getPriorityBadge = (status) => {
+        const priorities = {
+            1: { class: 'badge-danger', text: 'Alta prioridade' },
+            2: { class: 'badge-warning', text: 'Média prioridade' },
+            3: { class: 'badge-info', text: 'Baixa prioridade' },
+        };
+        const priority = priorities[status];
+        return priority ? `<div class="badge w-75 badge-pill ${priority.class}">${priority.text}</div>` : '';
+    };
 
-                tasks.forEach(task => {
-                    kanbanCards.appendChild(createTaskElement(task));
-                    kanbanModals.appendChild(createModalTaskElement(task));
-                });
-            })
-            .catch(error => console.error('Erro ao carregar tarefas:', error));
-    }
-
-    function createTaskElement(task) {
-        const taskDiv = document.createElement('div');
-        taskDiv.className = 'kanbanCard card p-3 m-1';
-        taskDiv.setAttribute('draggable', 'true');
-        taskDiv.setAttribute('data-toggle', 'modal');
-        taskDiv.setAttribute('data-target', `#cardTask-${task.id}`);
-        taskDiv.setAttribute('data-id', task.id);
-
-        let priorityBadge = '';
-        if (task.status === 1) {
-            priorityBadge = `<div class="badge w-75 badge-pill badge-danger">Alta prioridade</div>`;
-        } else if (task.status === 2) {
-            priorityBadge = `<div class="badge w-75 badge-pill badge-warning">Média prioridade</div>`;
-        } else if (task.status === 3) {
-            priorityBadge = `<div class="badge w-75 badge-pill badge-info">Baixa prioridade</div>`;
-        }
-
-        taskDiv.innerHTML = `
-            ${priorityBadge}
+    const createTaskCard = (task) => {
+        return createElement('div', {
+            class: 'kanbanCard card p-3 m-1',
+            draggable: 'true',
+            'data-toggle': 'modal',
+            'data-target': `#cardTask-${task.id}`,
+            'data-id': task.id
+        }, `
+            ${getPriorityBadge(task.status)}
             <p class="cardTitle py-2 m-0">${task.title}</p>
-        `;
+        `);
+    };
 
-        return taskDiv;
-    }
-
-    function createModalTaskElement(task) {
-        const modalDiv = document.createElement('div');
-        modalDiv.className = 'modal fade';
-        modalDiv.setAttribute('id', `cardTask-${task.id}`);
-        modalDiv.setAttribute('tabindex', '-1');
-        modalDiv.setAttribute('aria-hidden', 'true');
-
-        modalDiv.innerHTML = `
+    const createTaskModal = (task) => {
+        return createElement('div', {
+            class: 'modal fade',
+            id: `cardTask-${task.id}`,
+            tabindex: '-1',
+            'aria-hidden': 'true'
+        }, `
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -67,226 +56,229 @@ document.addEventListener('DOMContentLoaded', () => {
                         </button>
                     </div>
                     <div class="modal-body">
-                        <form id="editTaskForm-${task.id}" class="edit-task-form">
-                            <input type="hidden" name="task_id" value="${task.id}">
-                            <div class="form-group">
-                                <label for="title-${task.id}">Título</label>
-                                <input type="text" class="form-control" id="title-${task.id}" name="title" value="${task.title}" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="description-${task.id}">Descrição</label>
-                                <textarea class="form-control" id="description-${task.id}" name="description" rows="3">${task.description || ''}</textarea>
-                            </div>
-                            <div class="form-group">
-                                <label for="status-${task.id}">Prioridade</label>
-                                <select class="form-control" id="status-${task.id}" name="status" required>
-                                    <option value="1" ${task.status === 1 ? 'selected' : ''}>Alta</option>
-                                    <option value="2" ${task.status === 2 ? 'selected' : ''}>Média</option>
-                                    <option value="3" ${task.status === 3 ? 'selected' : ''}>Baixa</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="step-${task.id}">Etapa</label>
-                                <select class="form-control" id="step-${task.id}" name="step" required>
-                                    <option value="1" ${task.step === 1 ? 'selected' : ''}>To Do</option>
-                                    <option value="2" ${task.step === 2 ? 'selected' : ''}>Doing</option>
-                                    <option value="3" ${task.step === 3 ? 'selected' : ''}>Done</option>
-                                </select>
-                            </div>
-                        </form>
+                        ${createTaskForm(task)}
                     </div>
                     <div class="modal-footer">
-                    
                         <button type="button" class="btn btn-danger" onclick="deleteTask(${task.id})">Excluir</button>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
                         <button type="button" class="btn btn-primary" onclick="saveTask(${task.id})">Salvar</button>
                     </div>
                 </div>
             </div>
-        `;
+        `);
+    };
 
-        return modalDiv;
-    }
+    const createTaskForm = (task) => `
+        <form id="editTaskForm-${task.id}" class="edit-task-form">
+            <input type="hidden" name="task_id" value="${task.id}">
+            ${createInputField('Título', `title-${task.id}`, 'title', task.title)}
+            ${createTextareaField('Descrição', `description-${task.id}`, 'description', task.description || '')}
+            ${createSelectField('Prioridade', `status-${task.id}`, 'status', task.status, [
+                { value: 1, label: 'Alta' },
+                { value: 2, label: 'Média' },
+                { value: 3, label: 'Baixa' }
+            ])}
+            ${createSelectField('Etapa', `step-${task.id}`, 'step', task.step, [
+                { value: 1, label: 'To Do' },
+                { value: 2, label: 'Doing' },
+                { value: 3, label: 'Done' }
+            ])}
+        </form>
+    `;
 
-    window.saveTask = function(taskId) {
+    const createInputField = (label, id, name, value) => `
+        <div class="form-group">
+            <label for="${id}">${label}</label>
+            <input type="text" class="form-control" id="${id}" name="${name}" value="${value}" required>
+        </div>
+    `;
+
+    const createTextareaField = (label, id, name, value) => `
+        <div class="form-group">
+            <label for="${id}">${label}</label>
+            <textarea class="form-control" id="${id}" name="${name}" rows="3">${value}</textarea>
+        </div>
+    `;
+
+    const createSelectField = (label, id, name, selectedValue, options) => `
+        <div class="form-group">
+            <label for="${id}">${label}</label>
+            <select class="form-control" id="${id}" name="${name}" required>
+                ${options.map(opt => `<option value="${opt.value}" ${opt.value === selectedValue ? 'selected' : ''}>${opt.label}</option>`).join('')}
+            </select>
+        </div>
+    `;
+
+    const loadTasksForColumn = (column) => {
+        const stepId = column.dataset.id;
+        fetchJSON(`${API_URL}?step=${stepId}`)
+            .then(tasks => {
+                const kanbanCards = column.querySelector('.kanbanCards');
+                const kanbanModals = column.querySelector('.kanbanModals');
+
+                kanbanCards.innerHTML = '';
+                kanbanModals.innerHTML = '';
+
+                tasks.forEach(task => {
+                    kanbanCards.appendChild(createTaskCard(task));
+                    kanbanModals.appendChild(createTaskModal(task));
+                });
+            })
+            .catch(err => console.error('Erro ao carregar tarefas:', err));
+    };
+
+    window.saveTask = (taskId) => {
         const form = document.getElementById(`editTaskForm-${taskId}`);
-        const formData = new FormData(form);
-        const data = Object.fromEntries(formData.entries());
+        const data = Object.fromEntries(new FormData(form).entries());
 
-        fetch('http://localhost:8081/api/tasks/editTask', {
+        fetchJSON(`${API_URL}/editTask`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         })
-        .then(response => {
-            if (!response.ok) throw new Error('Erro ao salvar tarefa.');
-            return response.json();
-        })
         .then(() => {
             $(`#cardTask-${taskId}`).modal('hide');
-            kanbanColumns.forEach(column => loadTasksForColumn(column));
+            refreshBoard();
         })
-        .catch(error => {
-            console.error('Erro ao salvar tarefa:', error);
+        .catch(err => {
+            console.error('Erro ao salvar tarefa:', err);
             alert('Erro ao salvar a tarefa. Tente novamente.');
         });
     };
 
-    // DRAG & DROP + Atualização do Step
-    document.querySelectorAll('.kanbanCards').forEach(cardsContainer => {
-        cardsContainer.addEventListener('dragover', e => {
-            e.preventDefault();
-            cardsContainer.classList.add('cardsHover');
-        });
+    window.deleteTask = (taskId) => {
+        if (!confirm('Tem certeza que deseja excluir esta tarefa?')) return;
 
-        cardsContainer.addEventListener('dragleave', () => {
-            cardsContainer.classList.remove('cardsHover');
-        });
-
-        cardsContainer.addEventListener('drop', e => {
-            e.preventDefault();
-            cardsContainer.classList.remove('cardsHover');
-            const dragCard = document.querySelector('.kanbanCard.dragging');
-            if (dragCard) {
-                const newStep = cardsContainer.closest('.kanbanColumn').dataset.id;
-                const taskId = dragCard.getAttribute('data-id');
-
-                cardsContainer.appendChild(dragCard);
-
-                fetch('http://localhost:8081/api/tasks/editTask', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ task_id: taskId, step: newStep })
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error('Erro ao mover tarefa.');
-                    return response.json();
-                })
-                .then(() => {
-                    kanbanColumns.forEach(column => loadTasksForColumn(column));
-                })
-                .catch(error => console.error('Erro ao mover tarefa:', error));
-            }
-        });
-    });
-
-    document.addEventListener('dragstart', e => {
-        if (e.target.classList.contains('kanbanCard')) {
-            e.target.classList.add('dragging');
-        }
-    });
-
-    document.addEventListener('dragend', e => {
-        if (e.target.classList.contains('kanbanCard')) {
-            e.target.classList.remove('dragging');
-        }
-    });
-    window.deleteTask = function(taskId) {
-        if (!confirm('Tem certeza que deseja excluir esta tarefa?')) {
-            return; // Se o usuário cancelar, não faz nada
-        }
-    
-        fetch('http://localhost:8081/api/tasks/deleteTask', {
+        fetchJSON(`${API_URL}/deleteTask`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ task_id: taskId })
         })
-        .then(response => {
-            if (!response.ok) throw new Error('Erro ao excluir tarefa.');
-            return response.json();
-        })
         .then(() => {
             $(`#cardTask-${taskId}`).modal('hide');
-            kanbanColumns.forEach(column => loadTasksForColumn(column));
+            refreshBoard();
         })
-        .catch(error => {
-            console.error('Erro ao excluir tarefa:', error);
+        .catch(err => {
+            console.error('Erro ao excluir tarefa:', err);
             alert('Erro ao excluir a tarefa. Tente novamente.');
         });
     };
 
-    // ABRIR MODAL DE ADIÇÃO DE NOVA TAREFA
-    addCardButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const stepId = button.getAttribute('data-id');
+    const refreshBoard = () => kanbanColumns.forEach(loadTasksForColumn);
 
-            // Aqui você pode abrir um modal de criação novo (exemplo usando Bootstrap)
-            const modalHtml = `
-                <div class="modal fade" id="newTaskModal" tabindex="-1" role="dialog" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">Adicionar Tarefa</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <form id="newTaskForm">
-                                    <div class="form-group">
-                                        <label for="newTitle">Título</label>
-                                        <input type="text" class="form-control" id="newTitle" name="title" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="newDescription">Descrição</label>
-                                        <textarea class="form-control" id="newDescription" name="description" rows="3"></textarea>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="status">Prioridade</label>
-                                        <select class="form-control" id="status" name="status" required>
-                                            <option value="1" >Alta</option>
-                                            <option value="2" >Média</option>
-                                            <option value="3" >Baixa</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="step">Etapa</label>
-                                        <select class="form-control" id="step" name="step" required>
-                                            <option value="1" >To Do</option>
-                                            <option value="2" >Doing</option>
-                                            <option value="3" >Done</option>
-                                        </select>
-                                    </div>
-                                    <input type="hidden" name="step" value="${stepId}">
-                                    <input type="hidden" name="status" value="2"> <!-- padrão Média prioridade -->
-                                </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                                <button type="button" class="btn btn-primary" id="saveNewTask">Salvar</button>
-                            </div>
+    const setupDragAndDrop = () => {
+        document.querySelectorAll('.kanbanCards').forEach(cardsContainer => {
+            cardsContainer.addEventListener('dragover', e => {
+                e.preventDefault();
+                cardsContainer.classList.add('cardsHover');
+            });
+
+            cardsContainer.addEventListener('dragleave', () => {
+                cardsContainer.classList.remove('cardsHover');
+            });
+
+            cardsContainer.addEventListener('drop', e => {
+                e.preventDefault();
+                cardsContainer.classList.remove('cardsHover');
+
+                const dragCard = document.querySelector('.kanbanCard.dragging');
+                if (dragCard) {
+                    const newStep = cardsContainer.closest('.kanbanColumn').dataset.id;
+                    const taskId = dragCard.dataset.id;
+
+                    fetchJSON(`${API_URL}/editTask`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ task_id: taskId, step: newStep })
+                    })
+                    .then(refreshBoard)
+                    .catch(err => console.error('Erro ao mover tarefa:', err));
+
+                    cardsContainer.appendChild(dragCard);
+                }
+            });
+        });
+
+        document.addEventListener('dragstart', e => {
+            if (e.target.classList.contains('kanbanCard')) {
+                e.target.classList.add('dragging');
+            }
+        });
+
+        document.addEventListener('dragend', e => {
+            if (e.target.classList.contains('kanbanCard')) {
+                e.target.classList.remove('dragging');
+            }
+        });
+    };
+
+    const setupAddTaskButtons = () => {
+        addCardButtons.forEach(button => {
+            button.addEventListener('click', () => openNewTaskModal(button.dataset.id));
+        });
+    };
+
+    const openNewTaskModal = (stepId) => {
+        const modalHtml = `
+            <div class="modal fade" id="newTaskModal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Adicionar Tarefa</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="newTaskForm">
+                                ${createInputField('Título', 'newTitle', 'title', '')}
+                                ${createTextareaField('Descrição', 'newDescription', 'description', '')}
+                                ${createSelectField('Prioridade', 'newStatus', 'status', 1, [
+                                    { value: 1, label: 'Alta' },
+                                    { value: 2, label: 'Média' },
+                                    { value: 3, label: 'Baixa' }
+                                ])}
+                                ${createSelectField('Etapa', 'newStep', 'step', 1, [
+                                    { value: 1, label: 'To Do' },
+                                    { value: 2, label: 'Doing' },
+                                    { value: 3, label: 'Done' }
+                                ])}
+                            </form>
+                            
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                            <button type="button" class="btn btn-primary" id="saveNewTask">Salvar</button>
                         </div>
                     </div>
                 </div>
-            `;
+            </div>
+        `;
 
-            document.body.insertAdjacentHTML('beforeend', modalHtml);
-            const modal = new bootstrap.Modal(document.getElementById('newTaskModal'));
-            modal.show();
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        const modal = new bootstrap.Modal(document.getElementById('newTaskModal'));
+        modal.show();
 
-            document.getElementById('saveNewTask').addEventListener('click', () => {
-                const form = document.getElementById('newTaskForm');
-                const formData = new FormData(form);
-                const data = Object.fromEntries(formData.entries());
+        document.getElementById('saveNewTask').addEventListener('click', () => {
+            const form = document.getElementById('newTaskForm');
+            const data = Object.fromEntries(new FormData(form).entries());
 
-                fetch('http://localhost:8081/api/tasks/createTask', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error('Erro ao adicionar tarefa.');
-                    return response.json();
-                })
-                .then(() => {
-                    modal.hide();
-                    document.getElementById('newTaskModal').remove();
-                    kanbanColumns.forEach(column => loadTasksForColumn(column));
-                })
-                .catch(error => console.error('Erro ao adicionar tarefa:', error));
-            });
+            fetchJSON(`${API_URL}/createTask`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(() => {
+                modal.hide();
+                document.getElementById('newTaskModal').remove();
+                refreshBoard();
+            })
+            .catch(err => console.error('Erro ao adicionar tarefa:', err));
         });
-    });
+    };
 
-    kanbanColumns.forEach(column => loadTasksForColumn(column));
+    // Inicialização
+    refreshBoard();
+    setupDragAndDrop();
+    setupAddTaskButtons();
 });
