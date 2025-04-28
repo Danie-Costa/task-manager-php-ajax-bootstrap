@@ -17,10 +17,11 @@ class TaskController extends Controller
         $this->jsonResponse($tasks);
     }
 
-    public function createTask($data)
+    public function createTask()
     {
-        if ($this->task->create($data)) {
-            $this->jsonResponse(['message' => 'Tarefa criada com sucesso', 'task' => $data]);
+        global $requestParams;
+        if ($this->task->create($requestParams)) {
+            $this->jsonResponse(['message' => 'Tarefa criada com sucesso', 'task' => $requestParams]);
         } else {
             $this->jsonResponse(['message' => 'Erro ao criar tarefa'], 500);
         }
@@ -43,14 +44,16 @@ class TaskController extends Controller
         }
     }
 
-    public function deleteTask($data)
+    public function deleteTask()
     {
-        if (!isset($data['id'])) {
+        global $requestParams;
+        $task_id = $requestParams['task_id'] ?? null;
+        if (!isset($task_id)) {
             $this->jsonResponse(['message' => 'ID não informado'], 400);
             return;
         }
 
-        if ($this->task->delete($data['id'])) {
+        if ($this->task->delete($task_id)) {
             $this->jsonResponse(['message' => 'Tarefa excluída com sucesso']);
         } else {
             $this->jsonResponse(['message' => 'Erro ao excluir tarefa'], 500);
