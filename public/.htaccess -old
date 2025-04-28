@@ -1,0 +1,11 @@
+RewriteEngine On
+
+# Permite acessar diretamente arquivos em /resources
+RewriteCond %{REQUEST_URI} !^/resources/
+
+# Se não for um arquivo ou diretório existente
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Redireciona para index.php
+RewriteRule ^(.*)$ index.php [QSA,L]

@@ -19,9 +19,9 @@ COPY . /var/www/html
 
 # Configure Apache to allow .htaccess usage
 RUN echo '<Directory /var/www/html>' > /etc/apache2/conf-available/htaccess.conf && \
+    echo '    Options Indexes FollowSymLinks' >> /etc/apache2/conf-available/htaccess.conf && \
     echo '    AllowOverride All' >> /etc/apache2/conf-available/htaccess.conf && \
+    echo '    Require all granted' >> /etc/apache2/conf-available/htaccess.conf && \
     echo '</Directory>' >> /etc/apache2/conf-available/htaccess.conf && \
     a2enconf htaccess
 
-# Expose port 80 inside the container
-EXPOSE 80

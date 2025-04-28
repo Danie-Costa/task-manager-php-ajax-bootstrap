@@ -1,4 +1,20 @@
+DirectoryIndex public/index.php
+Options -Indexes
+
 RewriteEngine On
 
-# Redireciona todas as requisições para index.php
+# Se for um arquivo real (não pasta) serve normalmente
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# Se for um diretório, continua o processamento (não para aqui), exceto para a raiz
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteCond %{REQUEST_URI} !^/$
+RewriteRule ^ - [L]
+
+# Se o caminho começar com /resources/, serve os arquivos de public/resources
+RewriteCond %{REQUEST_URI} ^/resources/
+RewriteRule ^resources/(.*)$ public/resources/$1 [L]
+
+# Todo o resto redireciona para public/index.php
 RewriteRule ^(.*)$ public/index.php [QSA,L]
