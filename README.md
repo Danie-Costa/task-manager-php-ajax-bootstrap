@@ -1,90 +1,145 @@
-Task Manager - PHP, Ajax, Bootstrap
-A simple and responsive web application for daily task management.
-Built using PHP (OOP), MySQL, jQuery/Ajax, and Bootstrap.
-Follows SOLID principles and best coding practices.
+# Task Manager - Sistema de Gerenciamento de Tarefas
 
-📋 Features
-Add, edit, delete tasks.
+Sistema de gerenciamento de tarefas desenvolvido com PHP, JavaScript e Bootstrap, utilizando arquitetura MVC e padrões de projeto modernos.
 
-Mark tasks as completed.
+## 🚀 Funcionalidades
 
-Ajax-based form submissions (no page reload).
+### Gerenciamento de Tarefas
+- ✅ Visualização em quadro Kanban
+- ✅ Criação de novas tarefas
+- ✅ Edição de tarefas existentes
+- ✅ Exclusão de tarefas
+- ✅ Drag and Drop entre colunas
+- ✅ Priorização de tarefas (Alta, Média, Baixa)
 
-Responsive design with Bootstrap.
+### Interface
+- 🎨 Design responsivo com Bootstrap
+- 🔄 Atualização em tempo real
+- 🎯 Sistema de prioridades visual
+- 📱 Compatível com dispositivos móveis
 
-Object-Oriented PHP backend.
+### Organização
+- 📋 Três colunas: To Do, Doing, Done
+- 🏷️ Sistema de prioridades
+- 📊 Visualização clara do progresso
 
-MySQL database integration.
+## 🛠️ Tecnologias Utilizadas
 
-🛠️ Technologies Used
-PHP 8+
+- PHP 8.0+
+- JavaScript (ES6+)
+- Bootstrap 5
+- MySQL
+- Docker
 
-MySQL
+## 📋 Pré-requisitos
 
-jQuery
+- Docker
+- Docker Compose
+- Git
 
-Ajax
+## 🔧 Instalação
 
-Bootstrap 5
+1. Clone o repositório:
+```bash
+git clone [url-do-repositorio]
+```
 
-🗂️ Project Structure
-pgsql
-Copiar
-Editar
-/config/        --> Database connection
-/controllers/   --> Handle requests (create, update, delete tasks)
-/models/        --> Task model (business logic)
-/views/         --> HTML views (Bootstrap + jQuery)
-/public/        --> CSS, JS and frontend assets
-/sql/           --> Database export (database.sql)
-📦 Setup Instructions
-Clone the repository
+2. Inicie os containers:
+```bash
+docker-compose up -d
+```
 
-bash
-Copiar
-Editar
-git clone https://github.com/yourusername/task-manager-php-ajax-bootstrap.git
-Import the Database
+3. Acesse o container PHP:
+```bash
+docker exec -it task-manager-php bash
+```
 
-Open your database management tool (e.g., phpMyAdmin).
+4. Execute as migrações:
+```bash
+# Criar tabelas e dados iniciais
+php Command.php migrate:up TaskMigration
 
-Create a new database called task_manager.
+# Reverter migrações (se necessário)
+php Command.php migrate:down TaskMigration
+```
 
-Import the file located at /sql/database.sql.
+## 🎮 Como Usar
 
-Configure the Database Connection
+### Visualização
+- As tarefas são exibidas em um quadro Kanban com três colunas
+- Cada tarefa mostra sua prioridade através de badges coloridos
+- Arraste e solte para mover tarefas entre colunas
 
-Open /config/Database.php.
+### Criação de Tarefas
+1. Clique no botão "+" em qualquer coluna
+2. Preencha os campos:
+   - Título
+   - Descrição
+   - Prioridade
+   - Etapa inicial
+3. Clique em "Salvar"
 
-Set your database host, username, and password.
+### Edição de Tarefas
+1. Clique em uma tarefa para abrir o modal de edição
+2. Modifique os campos desejados
+3. Clique em "Salvar" para atualizar
 
-Run the Application
+### Exclusão de Tarefas
+1. Abra o modal de edição da tarefa
+2. Clique no botão "Excluir"
+3. Confirme a exclusão
 
-Start your Apache server (e.g., XAMPP, WAMP).
+### Movendo Tarefas
+- Arraste a tarefa para a coluna desejada
+- O sistema atualiza automaticamente a etapa da tarefa
 
-Open http://localhost/task-manager-php-ajax-bootstrap/public/ in your browser.
+## 🔄 Atualizações Automáticas
+- O sistema recarrega as tarefas automaticamente após qualquer alteração
+- As mudanças são refletidas em tempo real para todos os usuários
 
-✅ Requirements
-PHP 8.0 or higher
+## 🐛 Debug e Logs
+- Console do navegador para debug do frontend
+- Logs do PHP para debug do backend
+- Mensagens de erro amigáveis para o usuário
 
-MySQL 5.7 or higher
+## 📝 Estrutura do Projeto
 
-Apache/Nginx server
+```
+task-manager/
+├── public/              # Arquivos públicos
+│   ├── css/            # Estilos
+│   └── js/             # Scripts JavaScript
+├── src/                # Código fonte
+│   ├── controllers/    # Controladores
+│   ├── models/         # Modelos
+│   └── views/          # Views
+├── databases/          # Migrações e seeds
+└── config/             # Configurações
+```
 
-Composer (optional, for autoloading)
+## 🔒 Segurança
+- Validação de dados no frontend e backend
+- Proteção contra SQL Injection
+- Sanitização de inputs
 
-🤝 Contributing
-Contributions are welcome! Feel free to open issues or submit pull requests to improve the project.
+## 📈 Próximos Passos
+- [ ] Sistema de usuários e autenticação
+- [ ] Compartilhamento de tarefas
+- [ ] Comentários em tarefas
+- [ ] Prazos e datas
+- [ ] Relatórios e estatísticas
 
-📄 License
-This project is licensed under the MIT License.
+## 🤝 Contribuição
+1. Fork o projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
 
-📄 Comandos Uteis
-    docker exec -it task-manager-php bash
-        php Command.php migrate:up TaskMigration
-        php Command.php migrate:down TaskMigration
+## 📄 Licença
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
-🎯 Author
-Developed by [Pontes].
+## ✨ Créditos
+Desenvolvido por [Pontes] 
 
 
