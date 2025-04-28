@@ -1,28 +1,54 @@
 <?php 
 
-class TaskController extends Controller {
-    // Método para listar todas as tarefas
-    public function listTasks() {
-        // Lógica para obter todas as tarefas do banco de dados
-        $tasks = ['tasks' => 'Lista de tarefas'];
+class TaskController extends Controller
+{
+    private Task $task;
+
+    public function __construct()
+    {
+        $this->task = new Task();
+    }
+
+    public function listTasks()
+    {
+        $tasks = $this->task->all();
         $this->jsonResponse($tasks);
     }
 
-    // Método para criar uma nova tarefa
-    public function createTask($data) {
-        // Lógica para criar uma nova tarefa com base nos dados recebidos
-        $this->jsonResponse(['message' => 'Tarefa criada com sucesso', 'task' => $data]);
+    public function createTask($data)
+    {
+        if ($this->task->create($data)) {
+            $this->jsonResponse(['message' => 'Tarefa criada com sucesso', 'task' => $data]);
+        } else {
+            $this->jsonResponse(['message' => 'Erro ao criar tarefa'], 500);
+        }
     }
 
-    // Método para editar uma tarefa existente
-    public function editTask($data) {
-        // Lógica para editar uma tarefa pelo id com base nos dados recebidos
-        $this->jsonResponse(['message' => 'Tarefa atualizada com sucesso', 'task' => $data]);
+    public function editTask($data)
+    {
+        if (!isset($data['id'])) {
+            $this->jsonResponse(['message' => 'ID não informado'], 400);
+            return;
+        }
+
+        if ($this->task->update($data['id'], $data)) {
+            $this->jsonResponse(['message' => 'Tarefa atualizada com sucesso', 'task' => $data]);
+        } else {
+            $this->jsonResponse(['message' => 'Erro ao atualizar tarefa'], 500);
+        }
     }
 
-    // Método para excluir uma tarefa
-    public function deleteTask($data) {
-        // Lógica para excluir a tarefa com o id informado
-        $this->jsonResponse(['message' => 'Tarefa excluída com sucesso']);
+    public function deleteTask($data)
+    {
+        if (!isset($data['id'])) {
+            $this->jsonResponse(['message' => 'ID não informado'], 400);
+            return;
+        }
+
+        if ($this->task->delete($data['id'])) {
+            $this->jsonResponse(['message' => 'Tarefa excluída com sucesso']);
+        } else {
+            $this->jsonResponse(['message' => 'Erro ao excluir tarefa'], 500);
+        }
     }
 }

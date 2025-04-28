@@ -79,5 +79,12 @@ Contributions are welcome! Feel free to open issues or submit pull requests to i
 📄 License
 This project is licensed under the MIT License.
 
+📄 Comandos Uteis
+    docker exec -it task-manager-php bash
+        php Command.php migrate:up TaskMigration
+        php Command.php migrate:down TaskMigration
+
 🎯 Author
 Developed by [Pontes].
+
+
