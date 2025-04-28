@@ -1,9 +1,9 @@
 <?php 
 
-class WebController {
+class WebController  extends Controller{
     
     public function home() {
-        echo "Bem-vindo à página inicial!";
+        $this->render('public/home');
     }
 
     public function sobre() {
