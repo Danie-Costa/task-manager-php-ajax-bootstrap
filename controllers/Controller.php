@@ -19,7 +19,7 @@ class Controller {
         require BASE_PATH . 'views/' . $view . '.php';
         $this->content = ob_get_clean();
         if ($this->extend) {
-            $this->extended($view);
+            $this->extended($this->extend);
         }
     }
     public function extended($view)
