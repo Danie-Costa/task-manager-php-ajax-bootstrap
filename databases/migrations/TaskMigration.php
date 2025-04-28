@@ -1,5 +1,5 @@
 <?php 
-class TaskMigration {
+class TaskMigration implements MigrationInterface{
     public function up() {
         $db = Database::getInstance();
                 

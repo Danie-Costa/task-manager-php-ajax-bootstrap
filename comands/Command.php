@@ -1,6 +1,7 @@
 <?php
 define('BASE_PATH', dirname(__DIR__) . '/');
 
+require_once BASE_PATH . '/interfaces/init.php';
 require_once BASE_PATH . '/databases/init.php';
 require_once BASE_PATH . '/databases/migrations/init.php';
 
