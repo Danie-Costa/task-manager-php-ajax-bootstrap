@@ -6,6 +6,18 @@ class ApiRouter implements RouterInterface {
             '/' => [
                 'GET' => ['ApiController', 'apiHome'],
             ],
+            '/tasks' => [
+                'GET' => ['TaskController', 'listTasks'], 
+            ],
+            '/tasks/createTask' => [
+                'POST' => ['TaskController', 'createTask'], 
+            ],
+            '/tasks/editTask' => [
+                'POST' => ['TaskController', 'editTask'], 
+            ],
+            '/tasks/deleteTask' => [
+                'POST' => ['TaskController', 'deleteTask'], 
+            ],
         ];
     }
 }
